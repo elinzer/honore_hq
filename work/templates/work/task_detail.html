@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}{{ task.title }} - {{ household.name }}{% endblock %}
+
+{% block content %}
+<p><a href="{% url 'work:task_list' household_pk=household.pk %}">&larr; Back to Tasks</a></p>
+
+<h1>{{ task.title }}</h1>
+
+<div class="card">
+    <p>
+        <span class="status-badge status-{{ task.status }}">{{ task.get_status_display }}</span>
+        {% if task.priority %}
+        <span class="priority-{{ task.priority }}">{{ task.get_priority_display }} Priority</span>
+        {% endif %}
+    </p>
+
+    <table style="margin: 1rem 0;">
+        <tr><td style="padding-right: 2rem; color: #6b7280;">Unit</td><td>{{ task.unit.name }}</td></tr>
+        <tr><td style="padding-right: 2rem; color: #6b7280;">Created by</td><td>{{ task.created_by.username }}</td></tr>
+        {% if task.assigned_to %}
+        <tr><td style="padding-right: 2rem; color: #6b7280;">Assigned to</td><td>{{ task.assigned_to.username }}</td></tr>
+        {% endif %}
+        {% if task.due_date %}
+        <tr><td style="padding-right: 2rem; color: #6b7280;">Due date</td><td>{{ task.due_date }}</td></tr>
+        {% endif %}
+        <tr><td style="padding-right: 2rem; color: #6b7280;">Created</td><td>{{ task.created_at }}</td></tr>
+        <tr><td style="padding-right: 2rem; color: #6b7280;">Updated</td><td>{{ task.updated_at }}</td></tr>
+    </table>
+
+    {% if task.description %}
+    <h2>Description</h2>
+    <p>{{ task.description|linebreaks }}</p>
+    {% endif %}
+
+    {% if can_edit %}
+    <div class="actions">
+        <a href="{% url 'work:task_update' household_pk=household.pk task_pk=task.pk %}" class="btn">Edit Task</a>
+
+        {% if task.status != 'DONE' %}
+        <form method="post" action="{% url 'work:task_status_update' household_pk=household.pk task_pk=task.pk %}" style="display:inline; margin:0;">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.path }}">
+            {% if task.status == 'OPEN' or task.status == 'PLANNED' %}
+            <button type="submit" name="status" value="IN_PROGRESS" class="btn btn-secondary">Start Work</button>
+            {% elif task.status == 'IN_PROGRESS' %}
+            <button type="submit" name="status" value="DONE" class="btn btn-secondary">Mark Complete</button>
+            <button type="submit" name="status" value="BLOCKED" class="btn btn-secondary">Mark Blocked</button>
+            {% elif task.status == 'BLOCKED' %}
+            <button type="submit" name="status" value="IN_PROGRESS" class="btn btn-secondary">Unblock</button>
+            {% endif %}
+        </form>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks - {{ household.name }}{% endblock %}
+
+{% block content %}
+<h1>Tasks</h1>
+
+<form method="get" class="filters">
+    <select name="status" onchange="this.form.submit()">
+        <option value="">All Statuses</option>
+        {% for value, label in statuses %}
+        <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+    </select>
+
+    <select name="unit" onchange="this.form.submit()">
+        <option value="">All Units</option>
+        {% for unit in units %}
+        <option value="{{ unit.pk }}" {% if current_unit == unit.pk|stringformat:"i" %}selected{% endif %}>{{ unit.name }}</option>
+        {% endfor %}
+    </select>
+</form>
+
+{% if tasks %}
+    {% for task in tasks %}
+    <div class="card">
+        <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div>
+                <a href="{% url 'work:task_detail' household_pk=household.pk task_pk=task.pk %}">
+                    <strong>{{ task.title }}</strong>
+                </a>
+                <span class="status-badge status-{{ task.status }}">{{ task.get_status_display }}</span>
+                {% if task.priority %}
+                <span class="priority-{{ task.priority }}">{{ task.get_priority_display }}</span>
+                {% endif %}
+            </div>
+            {% if task.created_by == user or is_admin %}
+            <a href="{% url 'work:task_update' household_pk=household.pk task_pk=task.pk %}" class="btn btn-secondary btn-sm">Edit</a>
+            {% endif %}
+        </div>
+        <div class="task-meta">
+            {{ task.unit.name }}
+            {% if task.assigned_to %} &middot; Assigned to {{ task.assigned_to.username }}{% endif %}
+            {% if task.due_date %} &middot; Due {{ task.due_date }}{% endif %}
+        </div>
+        {% if task.created_by == user or is_admin %}
+        {% if task.status != 'DONE' %}
+        <div class="actions">
+            <form method="post" action="{% url 'work:task_status_update' household_pk=household.pk task_pk=task.pk %}" style="display:inline; margin:0;">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                {% if task.status == 'OPEN' %}
+                <button type="submit" name="status" value="IN_PROGRESS" class="btn btn-sm">Start</button>
+                {% elif task.status == 'IN_PROGRESS' %}
+                <button type="submit" name="status" value="DONE" class="btn btn-sm">Complete</button>
+                <button type="submit" name="status" value="BLOCKED" class="btn btn-secondary btn-sm">Block</button>
+                {% elif task.status == 'BLOCKED' %}
+                <button type="submit" name="status" value="IN_PROGRESS" class="btn btn-sm">Unblock</button>
+                {% elif task.status == 'PLANNED' %}
+                <button type="submit" name="status" value="IN_PROGRESS" class="btn btn-sm">Start</button>
+                {% endif %}
+            </form>
+        </div>
+        {% endif %}
+        {% endif %}
+    </div>
+    {% endfor %}
+{% else %}
+    <p>No tasks found.</p>
+{% endif %}
+{% endblock %}

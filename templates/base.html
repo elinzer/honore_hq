@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Honore HQ{% endblock %}</title>
+    <style>
+        /* Basic reset and styles - replace with Tailwind later */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; line-height: 1.5; padding: 1rem; max-width: 1200px; margin: 0 auto; }
+        a { color: #2563eb; }
+        nav { margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
+        nav a { margin-right: 1rem; }
+        h1, h2 { margin-bottom: 1rem; }
+        .btn { display: inline-block; padding: 0.5rem 1rem; background: #2563eb; color: white; text-decoration: none; border-radius: 0.25rem; border: none; cursor: pointer; }
+        .btn:hover { background: #1d4ed8; }
+        .btn-secondary { background: #6b7280; }
+        .btn-secondary:hover { background: #4b5563; }
+        .btn-sm { padding: 0.25rem 0.5rem; font-size: 0.875rem; }
+        form { margin-bottom: 1rem; }
+        label { display: block; margin-bottom: 0.25rem; font-weight: 500; }
+        input, select, textarea { width: 100%; padding: 0.5rem; margin-bottom: 1rem; border: 1px solid #d1d5db; border-radius: 0.25rem; }
+        input[type="checkbox"] { width: auto; }
+        .form-group { margin-bottom: 1rem; }
+        .card { border: 1px solid #e5e7eb; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1rem; }
+        .status-badge { display: inline-block; padding: 0.125rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500; }
+        .status-OPEN { background: #fef3c7; color: #92400e; }
+        .status-PLANNED { background: #dbeafe; color: #1e40af; }
+        .status-IN_PROGRESS { background: #d1fae5; color: #065f46; }
+        .status-BLOCKED { background: #fee2e2; color: #991b1b; }
+        .status-DONE { background: #e5e7eb; color: #374151; }
+        .priority-HIGH { color: #dc2626; font-weight: bold; }
+        .priority-MED { color: #d97706; }
+        .priority-LOW { color: #6b7280; }
+        .filters { display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .filters select { width: auto; margin-bottom: 0; }
+        .task-meta { color: #6b7280; font-size: 0.875rem; margin-top: 0.5rem; }
+        .actions { margin-top: 1rem; display: flex; gap: 0.5rem; }
+    </style>
+</head>
+<body>
+    <nav>
+        {% if household %}
+        <a href="{% url 'work:task_list' household_pk=household.pk %}">Tasks</a>
+        <a href="{% url 'work:task_create' household_pk=household.pk %}">+ New Task</a>
+        <span style="float: right; color: #6b7280;">
+            {{ household.name }} &middot;
+            {{ user.username }} &middot;
+            <a href="{% url 'logout' %}">Log out</a>
+        </span>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

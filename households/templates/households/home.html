@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Honore HQ</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: system-ui, sans-serif; line-height: 1.5; padding: 1rem; max-width: 800px; margin: 0 auto; }
+        h1 { margin-bottom: 0.5rem; }
+        .subtitle { color: #6b7280; margin-bottom: 2rem; }
+        .card {
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .card:hover { border-color: #2563eb; }
+        .card h2 { margin: 0; font-size: 1.25rem; }
+        .card .role { color: #6b7280; font-size: 0.875rem; }
+        .btn {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            border-radius: 0.25rem;
+        }
+        .btn:hover { background: #1d4ed8; }
+        .empty { color: #6b7280; text-align: center; padding: 3rem; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        .user-info { color: #6b7280; }
+        .user-info a { color: #2563eb; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div>
+            <h1>Honore HQ</h1>
+            <p class="subtitle">Select a household</p>
+        </div>
+        <div class="user-info">
+            {{ user.username }} &middot; <a href="{% url 'logout' %}">Log out</a>
+        </div>
+    </div>
+
+    {% if memberships %}
+        {% for membership in memberships %}
+        <a href="{% url 'work:task_list' household_pk=membership.household.pk %}" style="text-decoration: none; color: inherit;">
+            <div class="card">
+                <div>
+                    <h2>{{ membership.household.name }}</h2>
+                    <span class="role">{{ membership.get_role_display }}</span>
+                </div>
+                <span class="btn">View Tasks</span>
+            </div>
+        </a>
+        {% endfor %}
+    {% else %}
+        <div class="empty">
+            <p>You're not a member of any households yet.</p>
+            <p>Ask an admin to add you, or contact support.</p>
+        </div>
+    {% endif %}
+</body>
+</html>

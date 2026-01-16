@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}{% if object %}Edit Task{% else %}New Task{% endif %} - {{ household.name }}{% endblock %}
+
+{% block content %}
+<p><a href="{% url 'work:task_list' household_pk=household.pk %}">&larr; Back to Tasks</a></p>
+
+<h1>{% if object %}Edit Task{% else %}New Task{% endif %}</h1>
+
+<div class="card">
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-group">
+            <label for="id_title">Title</label>
+            <input type="text" name="title" id="id_title" value="{{ form.title.value|default:'' }}" required>
+            {% if form.title.errors %}
+            <p style="color: red;">{{ form.title.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_unit">Unit</label>
+            <select name="unit" id="id_unit" required>
+                <option value="">Select a unit...</option>
+                {% for unit in form.unit.field.queryset %}
+                <option value="{{ unit.pk }}" {% if form.unit.value == unit.pk|stringformat:"i" or form.unit.value == unit.pk %}selected{% endif %}>{{ unit.name }}</option>
+                {% endfor %}
+            </select>
+            {% if form.unit.errors %}
+            <p style="color: red;">{{ form.unit.errors.0 }}</p>
+            {% endif %}
+        </div>
+
+        <div class="form-group">
+            <label for="id_description">Description</label>
+            <textarea name="description" id="id_description" rows="4">{{ form.description.value|default:'' }}</textarea>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="id_status">Status</label>
+                <select name="status" id="id_status">
+                    {% for value, label in form.fields.status.choices %}
+                    <option value="{{ value }}" {% if form.status.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_priority">Priority</label>
+                <select name="priority" id="id_priority">
+                    <option value="">No priority</option>
+                    {% for value, label in form.fields.priority.choices %}
+                    {% if value %}
+                    <option value="{{ value }}" {% if form.priority.value == value %}selected{% endif %}>{{ label }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+                <label for="id_assigned_to">Assigned to</label>
+                <select name="assigned_to" id="id_assigned_to">
+                    <option value="">Unassigned</option>
+                    {% for choice in form.fields.assigned_to.choices %}
+                    {% if choice.0 %}
+                    <option value="{{ choice.0 }}" {% if form.assigned_to.value == choice.0|stringformat:"i" or form.assigned_to.value == choice.0 %}selected{% endif %}>{{ choice.1 }}</option>
+                    {% endif %}
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_due_date">Due date</label>
+                <input type="date" name="due_date" id="id_due_date" value="{{ form.due_date.value|default:'' }}">
+            </div>
+        </div>
+
+        <div class="actions">
+            <button type="submit" class="btn">{% if object %}Save Changes{% else %}Create Task{% endif %}</button>
+            <a href="{% url 'work:task_list' household_pk=household.pk %}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}
